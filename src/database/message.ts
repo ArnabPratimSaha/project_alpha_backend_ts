@@ -5,7 +5,7 @@ import {Message,MessageStatus,MessageType} from '../interface and enum/schema';
 const messageSchema=new mongoose.Schema<Message>({
     messageId:{type:String,required:true},
     targetGuild:{type:String,required:true},
-    type:{type:String,enum:Object.values(MessageType),default:MessageType.CHANNEL,required:true },
+    type:{type:String,enum:['channel','dm'],default:MessageType.CHANNEL,required:true },
     channels:[{type:String,maxlength:200}],
     members:[{type:String,maxlength:200}],
     roles:[{type:String,maxlength:200}],
