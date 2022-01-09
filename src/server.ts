@@ -51,7 +51,9 @@ import Authentication from './routes/authentication';
 import userRoute from './routes/userRoute';
 import { errorHandler } from "./middleware/error";
 import discordRoute from './routes/discordRoute';
+import messageRoute from './routes/messageRoute'
 app.use('/auth',Authentication );
 app.use('/user', userRoute);
-app.use('/discord',discordRoute)
+app.use('/discord',discordRoute);
+app.use('/message',messageRoute)
 app.use(errorHandler);
