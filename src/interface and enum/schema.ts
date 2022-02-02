@@ -25,4 +25,10 @@ interface Message{
     favourite:Boolean
 }
 
-export {Message,MessageStatus,MessageType}
+enum LogStatus {
+    PROCESSING = 'PROCESSING',
+    CANCELLED = 'CANCELLED',
+    SENT = 'SENT',
+    ALL='ALL'
+}
+export {Message,MessageStatus,MessageType,LogStatus}
