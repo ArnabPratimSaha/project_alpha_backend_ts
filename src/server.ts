@@ -51,9 +51,13 @@ import Authentication from './routes/authentication';
 import userRoute from './routes/userRoute';
 import { errorHandler } from "./middleware/error";
 import discordRoute from './routes/discordRoute';
-import messageRoute from './routes/messageRoute'
+import messageRoute from './routes/messageRoute';
+import logRoute from './routes/logRoute';
+import informationRoute from './routes/information';
 app.use('/auth',Authentication );
 app.use('/user', userRoute);
 app.use('/discord',discordRoute);
-app.use('/message',messageRoute)
+app.use('/message',messageRoute);
+app.use('/log',logRoute);
+app.use('/info',informationRoute);
 app.use(errorHandler);

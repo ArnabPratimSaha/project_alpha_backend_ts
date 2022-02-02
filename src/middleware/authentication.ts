@@ -11,7 +11,7 @@ import { CustomRequest } from './parametercheck';
 const authenticate = async (req:CustomRequest, res:Response, next:NextFunction) => {
     try {
         if(!process.env.SECRET)return next(new CustomError('Could not process.env.SECRET',500,false));
-        if(!req.headers.accesstoken)return next(new CustomError('Could not accesstoken',400));
+        if(!req.headers.accesstoken)return next(new CustomError('Could not find accesstoken',400));
         if(!req.headers.refreshtoken)return next(new CustomError('Could not refreshtoken',400));
         if(!req.headers.id)return next(new CustomError('Could not id',400));
         const accesstoken = req.headers.accesstoken;

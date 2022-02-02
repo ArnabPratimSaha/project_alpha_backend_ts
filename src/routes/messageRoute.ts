@@ -10,9 +10,30 @@ import {CustomRequest} from '../middleware/parametercheck'
 import {Guild,MessageEmbed} from 'discord.js'
 import {Role,Member,Channel} from '../interface and enum/discord';
 import {Message,MessageType,MessageStatus} from "../interface and enum/schema";
+//get a single message
+//required headers [id,accesstoken,refreshtoken]
+//required query [mid]
+//used AUTHENTICATE middleware see those middleware for full info
+Router.get('/', authenticate, async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const messageId = req.query.mid;
+        if(!messageId)return next(new CustomError('missing query [mid]', 400)); 
+        const message = await MessageModel.findOne({ messageId: messageId },'-_id')
+        if (!message) return next(new CustomError('missing body [mid]', 400));
+        res.status(200).json({ message: message, accesstoken: req.accesstoken, refreshtoken: req.refreshtoken })
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+});
 
+
+//post a message
+//required headers [id,accesstoken,refreshtoken]
+//required body [selectedMembers,selectedRoles,selectedChannels,selectedTime,message,title,type,did,gid]
+//used AUTHENTICATE middleware see those middleware for full info
 Router.post('/',authenticate, async (req:CustomRequest, res:Response,next:NextFunction) => {
-    try {        
+    try {
         const selectedMembers:Array<string> = req.body.selectedMembers;
         const selectedRoles:Array<string> = req.body.selectedRoles;
         const selectedChannels:Array<string> = req.body.selectedChannels;
@@ -86,12 +107,30 @@ Router.post('/',authenticate, async (req:CustomRequest, res:Response,next:NextFu
         return res.sendStatus(200);
     } catch (error) {
         console.log(error);
-        res.sendStatus(500)
+        next(error);
     }
-})
-Router.post('/test',authenticate, async (req:CustomRequest, res:Response,next:NextFunction) => {
-    console.log(req.body.type);
-    
+});
+//toggle favourite for a message
+//required headers [id,accesstoken,refreshtoken]
+//required body [mid]
+//used AUTHENTICATE middleware see those middleware for full info
+Router.patch('/favourite', authenticate, async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const messageId = req.body.mid;
+        if(!messageId)return next(new CustomError('missing body [mid]', 400)); 
+        const message = await MessageModel.findOne({ messageId: messageId })
+        if (!message) return next(new CustomError('missing body [mid]', 400));
+        if (message.favourite)
+            message.favourite = false;
+        else
+            message.favourite=true;
+        await message.save();
+        const newMessage = await MessageModel.findOne({ messageId: messageId },'-_id')
+        res.status(200).json({ message: newMessage, accesstoken: req.accesstoken, refreshtoken: req.refreshtoken })
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
 })
 // Router.delete('/', async (req, res) => {
 //     const messageId = req.query.id;

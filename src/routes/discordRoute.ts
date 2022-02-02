@@ -18,7 +18,7 @@ Router.get('/guilds',authenticate,async (req:CustomRequest, res:Response,next:Ne
     try {
         if (!discordId) return next(new CustomError('missing query [did]',400));
         const validguilds = await GuildModel.find({ status: true, validMembers :{$in: discordId}},'-_id -validMembers -isPartnered');
-        return res.status(200).json({ guilds: validguilds,accesstoken:req.accesstoken,refreshtoken:req.refreshtoken })
+        return res.status(200).json({ guilds: validguilds,accesstoken:req.accesstoken })
     } catch (error) {
         console.log(error);
         next(error);
@@ -45,13 +45,16 @@ Router.post('/channel',authenticate, async (req:CustomRequest, res:Response,next
         guild.channels.cache.forEach((channel)=>{
             if(channel.type==='GUILD_TEXT')validChannels.push({channelName:channel.name,channelId:channel.id});
         })
-        res.status(200).json({ channels: validChannels ,accesstoken:req.accesstoken,refreshtoken:req.refreshtoken})
+        res.status(200).json({ channels: validChannels ,accesstoken:req.accesstoken})
     } catch (error) {
         console.log(error);
         next(error);
     }
 });
-
+//get all the roles of the guild
+//required headers [id,accesstoken,refreshtoken]
+//required body [did,gid]
+//used AUTHENTICATE middleware see those middleware for full info
 Router.post('/role',authenticate, async (req:CustomRequest, res:Response,next:NextFunction) => {
     try {
         const discordId = req.body.did;
@@ -72,14 +75,17 @@ Router.post('/role',authenticate, async (req:CustomRequest, res:Response,next:Ne
                 isAdmin:r.permissions.has('ADMINISTRATOR')
             }
         })
-        res.status(200).json({ role: validRoles,accesstoken:req.accesstoken,responsetoken:req.refreshtoken })
+        res.status(200).json({ roles: validRoles,accesstoken:req.accesstoken })
     } catch (error) {
         console.log(error);
-        res.sendStatus(500)
+        next(error);
     }
 });
-
-Router.post('/member', async (req:CustomRequest, res:Response,next:NextFunction) => {
+//get all the members of the guild
+//required headers [id,accesstoken,refreshtoken]
+//required body [did,gid,query]
+//used AUTHENTICATE middleware see those middleware for full info
+Router.post('/member',authenticate, async (req:CustomRequest, res:Response,next:NextFunction) => {
     try {
         const discordId = req.body.did;
         const guildId = req.body.gid;
@@ -116,34 +122,9 @@ Router.post('/member', async (req:CustomRequest, res:Response,next:NextFunction)
         return res.status(200).json({ members: member,accesstoken:req.accesstoken,refreshtoken:req.refreshtoken })
     } catch (error) {
         console.log(error);
-        res.sendStatus(500)
+        next(error);
     }
 })
-
-// const extractChannelId = (channels) => {
-//     let id = [];
-//     for (let i = 0; i < channels.length; i++) {
-//         const e = channels[i];
-//         id.push(e.channelId)
-//     }
-//     return id;
-// }
-// const extractRoleId = (roles) => {
-//     let id = [];
-//     for (let i = 0; i < roles.length; i++) {
-//         const e = roles[i];
-//         id.push(e.roleId)
-//     }
-//     return id;
-// }
-// const extractMemberId = (members) => {
-//     let id = [];
-//     for (let i = 0; i < members.length; i++) {
-//         const e = members[i];
-//         id.push(e.memberId)
-//     }
-//     return id;
-// }
 
 
 export default Router;
