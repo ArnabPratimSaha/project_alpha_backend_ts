@@ -21,6 +21,29 @@ const uuid_1 = require("uuid");
 const authentication_1 = require("../middleware/authentication");
 const error_1 = require("../classes/error");
 const schema_1 = require("../interface and enum/schema");
+//get a single message
+//required headers [id,accesstoken,refreshtoken]
+//required query [mid]
+//used AUTHENTICATE middleware see those middleware for full info
+Router.get('/', authentication_1.authenticate, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const messageId = req.query.mid;
+        if (!messageId)
+            return next(new error_1.CustomError('missing query [mid]', 400));
+        const message = yield message_1.MessageModel.findOne({ messageId: messageId }, '-_id');
+        if (!message)
+            return next(new error_1.CustomError('missing body [mid]', 400));
+        res.status(200).json({ message: message, accesstoken: req.accesstoken, refreshtoken: req.refreshtoken });
+    }
+    catch (error) {
+        console.log(error);
+        next(error);
+    }
+}));
+//post a message
+//required headers [id,accesstoken,refreshtoken]
+//required body [selectedMembers,selectedRoles,selectedChannels,selectedTime,message,title,type,did,gid]
+//used AUTHENTICATE middleware see those middleware for full info
 Router.post('/', authentication_1.authenticate, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const selectedMembers = req.body.selectedMembers;
@@ -30,15 +53,13 @@ Router.post('/', authentication_1.authenticate, (req, res, next) => __awaiter(vo
             return next(new error_1.CustomError('missing body [selectedTime]', 400));
         const selectedTime = new Date(req.body.selectedTime);
         const preview = req.body.preview || false;
-        const title = req.body.title;
+        const title = req.body.title || new String("");
         const message = req.body.message;
         const type = req.body.type;
         if (!type)
             return next(new error_1.CustomError('missing body [type?:[\'dm\' or \'channel\']]', 400));
         if (type !== schema_1.MessageType.CHANNEL.toString() && type !== schema_1.MessageType.DM.toString())
             return next(new error_1.CustomError('Unsupported message type', 400));
-        if (!title)
-            return next(new error_1.CustomError('required title', 400));
         if (!message)
             return next(new error_1.CustomError('required message', 400));
         const discordId = req.body.did;
@@ -107,23 +128,54 @@ Router.post('/', authentication_1.authenticate, (req, res, next) => __awaiter(vo
     }
     catch (error) {
         console.log(error);
+        next(error);
+    }
+}));
+//toggle favourite for a message
+//required headers [id,accesstoken,refreshtoken]
+//required body [mid]
+//used AUTHENTICATE middleware see those middleware for full info
+Router.patch('/favourite', authentication_1.authenticate, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const messageId = req.body.mid;
+        if (!messageId)
+            return next(new error_1.CustomError('missing body [mid]', 400));
+        const message = yield message_1.MessageModel.findOne({ messageId: messageId });
+        if (!message)
+            return next(new error_1.CustomError('could not fild the message', 400));
+        if (message.favourite)
+            message.favourite = false;
+        else
+            message.favourite = true;
+        yield message.save();
+        const newMessage = yield message_1.MessageModel.findOne({ messageId: messageId }, '-_id');
+        res.status(200).json({ message: newMessage, accesstoken: req.accesstoken, refreshtoken: req.refreshtoken });
+    }
+    catch (error) {
+        console.log(error);
+        next(error);
+    }
+}));
+//cancel a message
+//required headers [id,accesstoken,refreshtoken]
+//required body [mid]
+//used AUTHENTICATE middleware see those middleware for full info
+Router.delete('/', authentication_1.authenticate, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const messageId = req.body.mid;
+    try {
+        const messageId = req.body.mid;
+        if (!messageId)
+            return next(new error_1.CustomError('missing body [mid]', 400));
+        const message = yield message_1.MessageModel.findOne({ messageId: messageId });
+        if (!message)
+            return next(new error_1.CustomError('could not fild the message', 400));
+        message.status = schema_1.MessageStatus.CANCELLED;
+        const data = yield message.save();
+        return res.status(200).json({ accesstoken: req.accesstoken, refreshtoken: req.refreshtoken, message: data });
+    }
+    catch (error) {
+        console.log(error);
         res.sendStatus(500);
     }
 }));
-Router.post('/test', authentication_1.authenticate, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body.type);
-}));
-// Router.delete('/', async (req, res) => {
-//     const messageId = req.query.id;
-//     try {
-//         const response = await MessageModel.findOneAndDelete({ messageId: messageId })
-//         if (!response)
-//             return res.sendStatus(404);
-//         else
-//             return res.sendStatus(200);
-//     } catch (error) {
-//         console.log(error);
-//         res.sendStatus(500)
-//     }
-// })
 exports.default = Router;
