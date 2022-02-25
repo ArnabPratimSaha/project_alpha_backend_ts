@@ -15,7 +15,7 @@ const messageSchema = new mongoose_1.default.Schema({
     channels: [{ type: String, maxlength: 200 }],
     members: [{ type: String, maxlength: 200 }],
     roles: [{ type: String, maxlength: 200 }],
-    title: { type: String, required: true },
+    title: { type: String },
     message: { type: String, required: true },
     sender: { type: String, required: true },
     createTime: { type: Date, default: new Date(), required: true },

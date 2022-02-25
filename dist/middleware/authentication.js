@@ -25,7 +25,7 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         if (!process.env.SECRET)
             return next(new error_1.CustomError('Could not process.env.SECRET', 500, false));
         if (!req.headers.accesstoken)
-            return next(new error_1.CustomError('Could not accesstoken', 400));
+            return next(new error_1.CustomError('Could not find accesstoken', 400));
         if (!req.headers.refreshtoken)
             return next(new error_1.CustomError('Could not refreshtoken', 400));
         if (!req.headers.id)
