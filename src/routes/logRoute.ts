@@ -32,7 +32,7 @@ Router.get('/', authenticate, async (req: CustomRequest, res: Response, next: Ne
         const messageType:string = req.query.type?req.query.type.toString():'any'
         const startIndex = (page - 1) * limit;
         const endIndex = limit * page;
-        const favourite= req.query.fav || undefined ;
+        const favourite:boolean= req.query.fav==='true'?true:false;
         const query = req.query.query ? req.query.query.toString().trim() : '';
         const typeArray: Array<string> = [];
         const statusArray: Array<string> = [];
@@ -64,10 +64,15 @@ Router.get('/', authenticate, async (req: CustomRequest, res: Response, next: Ne
             status: { $in: statusArray },
             favourite: { $in : favouriteArray },
             title:{ $regex :regex }
-        },'-_id').sort({ delivertime: -1 }).limit(endIndex).skip(startIndex)
+        },'-_id').sort({ createTime: -1 }).limit(endIndex).skip(startIndex)
         if (!client) await start();
         const logData=messageData.map(m=>{
-            return {message:m,guild:client.guilds.cache.find(g=>g.id===m.targetGuild)}
+            const guild=client.guilds.cache.find(g=>g.id===m.targetGuild);
+            const guildData={
+                icon:guild?.iconURL(),
+                name:guild?.name
+            };
+            return {message:m,guildData:guildData}
         })
         return res.status(200).json({ log: logData, accesstoken: req.accesstoken, refreshtoken: req.refreshtoken })
     } catch (error) {
