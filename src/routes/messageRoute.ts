@@ -40,12 +40,11 @@ Router.post('/',authenticate, async (req:CustomRequest, res:Response,next:NextFu
         if(!req.body.selectedTime)return next(new CustomError('missing body [selectedTime]',400));
         const selectedTime:Date = new Date(req.body.selectedTime);
         const preview:Boolean = req.body.preview||false;
-        const title:String|undefined = req.body.title;
+        const title:String = req.body.title||new String("");
         const message:String|undefined = req.body.message;
         const type:string = req.body.type;
         if(!type)return next(new CustomError('missing body [type?:[\'dm\' or \'channel\']]',400));
         if(type!==MessageType.CHANNEL.toString() && type!==MessageType.DM.toString())return next(new CustomError('Unsupported message type',400));
-        if(!title)return next(new CustomError('required title',400));
         if(!message)return next(new CustomError('required message',400));
         const discordId = req.body.did;
         const guildId = req.body.gid;
@@ -119,7 +118,7 @@ Router.patch('/favourite', authenticate, async (req: CustomRequest, res: Respons
         const messageId = req.body.mid;
         if(!messageId)return next(new CustomError('missing body [mid]', 400)); 
         const message = await MessageModel.findOne({ messageId: messageId })
-        if (!message) return next(new CustomError('missing body [mid]', 400));
+        if (!message) return next(new CustomError('could not fild the message', 400));
         if (message.favourite)
             message.favourite = false;
         else
@@ -132,18 +131,23 @@ Router.patch('/favourite', authenticate, async (req: CustomRequest, res: Respons
         next(error);
     }
 })
-// Router.delete('/', async (req, res) => {
-//     const messageId = req.query.id;
-//     try {
-//         const response = await MessageModel.findOneAndDelete({ messageId: messageId })
-//         if (!response)
-//             return res.sendStatus(404);
-//         else
-//             return res.sendStatus(200);
-
-//     } catch (error) {
-//         console.log(error);
-//         res.sendStatus(500)
-//     }
-// })
+//cancel a message
+//required headers [id,accesstoken,refreshtoken]
+//required body [mid]
+//used AUTHENTICATE middleware see those middleware for full info
+Router.delete('/', authenticate, async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const messageId = req.body.mid;
+    try {
+        const messageId = req.body.mid;
+        if(!messageId)return next(new CustomError('missing body [mid]', 400)); 
+        const message = await MessageModel.findOne({ messageId: messageId })
+        if (!message) return next(new CustomError('could not fild the message', 400));
+        message.status=MessageStatus.CANCELLED;
+        const data= await message.save();
+        return res.status(200).json({accesstoken:req.accesstoken,refreshtoken:req.refreshtoken,message:data});
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500)
+    }
+})
 export default Router;
