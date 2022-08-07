@@ -1,6 +1,5 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-
 import express,{ urlencoded } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';

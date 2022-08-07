@@ -45,8 +45,8 @@ const authenticate = async (req:CustomRequest, res:Response, next:NextFunction) 
                     return;
                 }
                 //user does not have refresh token or have a wrong refresh token
-                user.refreshtoken = [];
-                await user.save();
+                // user.refreshtoken = [];
+                // await user.save();
                 return next(new CustomError('Security breach',401));
             } catch (e) {
                 console.log(e);
@@ -56,11 +56,11 @@ const authenticate = async (req:CustomRequest, res:Response, next:NextFunction) 
         if (error instanceof jwt.JsonWebTokenError) {
             //security breach(user used a malformed jwt)
             try {
-                const id = req.headers.id;
-                const user = await UserModel.findOne({ userId: id });
-                if (!user) return next(new CustomError('No user found',404));
-                user.refreshtoken = [];
-                await user.save();
+                // const id = req.headers.id;
+                // const user = await UserModel.findOne({ userId: id });
+                // if (!user) return next(new CustomError('No user found',404));
+                // user.refreshtoken = [];
+                // await user.save();
                 return next(new CustomError('Security breach',401));
             } catch (e) {
                 console.log(e);

@@ -10,7 +10,7 @@ Router.get('/discord/callback', passport.authenticate('discord', {failureRedirec
   req:Request, res:Response
   )=> {
     try {
-        if (!process.env.SECRET) throw new Error('server sidder error');
+        if (!process.env.SECRET) throw new Error('server error');
         const user:any=req.user;
         if(!user)throw new Error('could not find any requst')
         const userData=await UserModel.findOne({discordId:user.discordId});
