@@ -64,7 +64,7 @@ Router.get('/', authenticate, async (req: CustomRequest, res: Response, next: Ne
             status: { $in: statusArray },
             favourite: { $in : favouriteArray },
             title:{ $regex :regex }
-        },'-_id').sort({ createTime: -1 }).limit(endIndex).skip(startIndex)
+        },'-_id').sort({ createTime: -1 }).limit(limit).skip(startIndex)
         if (!client) await start();
         const logData=messageData.map(m=>{
             const guild=client.guilds.cache.find(g=>g.id===m.targetGuild);
