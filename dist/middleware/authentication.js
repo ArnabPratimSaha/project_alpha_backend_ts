@@ -70,8 +70,8 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                     return;
                 }
                 //user does not have refresh token or have a wrong refresh token
-                user.refreshtoken = [];
-                yield user.save();
+                // user.refreshtoken = [];
+                // await user.save();
                 return next(new error_1.CustomError('Security breach', 401));
             }
             catch (e) {
@@ -82,12 +82,11 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         if (error instanceof jsonwebtoken_1.default.JsonWebTokenError) {
             //security breach(user used a malformed jwt)
             try {
-                const id = req.headers.id;
-                const user = yield user_1.UserModel.findOne({ userId: id });
-                if (!user)
-                    return next(new error_1.CustomError('No user found', 404));
-                user.refreshtoken = [];
-                yield user.save();
+                // const id = req.headers.id;
+                // const user = await UserModel.findOne({ userId: id });
+                // if (!user) return next(new CustomError('No user found',404));
+                // user.refreshtoken = [];
+                // await user.save();
                 return next(new error_1.CustomError('Security breach', 401));
             }
             catch (e) {

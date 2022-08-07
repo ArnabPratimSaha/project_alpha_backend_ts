@@ -75,7 +75,7 @@ Router.get('/', authentication_1.authenticate, (req, res, next) => __awaiter(voi
             status: { $in: statusArray },
             favourite: { $in: favouriteArray },
             title: { $regex: regex }
-        }, '-_id').sort({ createTime: -1 }).limit(endIndex).skip(startIndex);
+        }, '-_id').sort({ createTime: -1 }).limit(limit).skip(startIndex);
         if (!botStart_1.client)
             yield (0, botStart_1.start)();
         const logData = messageData.map(m => {
