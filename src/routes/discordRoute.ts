@@ -109,6 +109,7 @@ Router.post('/member',authenticate, async (req:CustomRequest, res:Response,next:
                     isAdmin: r.permissions.has('ADMINISTRATOR')
                 }
             })
+
             return {
                 nickName: m.nickname,
                 name: m.user.username,
@@ -116,7 +117,8 @@ Router.post('/member',authenticate, async (req:CustomRequest, res:Response,next:
                 tag: m.user.discriminator,
                 isAdmin:m.permissions.has('ADMINISTRATOR'),
                 roles:validRoles,
-                id:m.id
+                status:m.presence?.status||'offline',
+                id:m.id,
             }
         })
         return res.status(200).json({ members: member,accesstoken:req.accesstoken,refreshtoken:req.refreshtoken })
