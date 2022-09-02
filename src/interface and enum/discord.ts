@@ -1,3 +1,4 @@
+
 interface Role {
     name: String,
     id: String,
@@ -15,6 +16,7 @@ interface Member {
     id: String,
     avatar: String,
     roles?: Array<Role>,//
+    status: 'online' | 'idle' | 'dnd'| 'offline'|'invisible',
     isAdmin: Boolean
 }
 

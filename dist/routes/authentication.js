@@ -23,7 +23,7 @@ Router.get('/discord/callback', passport_1.default.authenticate('discord', { fai
     var _a;
     try {
         if (!process.env.SECRET)
-            throw new Error('server sidder error');
+            throw new Error('server error');
         const user = req.user;
         if (!user)
             throw new Error('could not find any requst');
