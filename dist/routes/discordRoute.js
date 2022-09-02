@@ -130,6 +130,7 @@ Router.post('/member', authentication_1.authenticate, (req, res, next) => __awai
             return next(new error_1.CustomError('could not the guild', 404));
         const discordMembers = yield guild.members.fetch({ query: query.toString(), limit: 20 });
         const member = discordMembers.map(m => {
+            var _a;
             let validRoles = m.roles.cache.map(r => {
                 return {
                     name: r.name,
@@ -145,7 +146,8 @@ Router.post('/member', authentication_1.authenticate, (req, res, next) => __awai
                 tag: m.user.discriminator,
                 isAdmin: m.permissions.has('ADMINISTRATOR'),
                 roles: validRoles,
-                id: m.id
+                status: ((_a = m.presence) === null || _a === void 0 ? void 0 : _a.status) || 'offline',
+                id: m.id,
             };
         });
         return res.status(200).json({ members: member, accesstoken: req.accesstoken, refreshtoken: req.refreshtoken });
